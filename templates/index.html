@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multifractal Simulation</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Real-Time Multifractal Asset Returns</h1>
+        <canvas id="simulationChart"></canvas>
+    </div>
+    <script>
+        // Set up the chart
+        const ctx = document.getElementById('simulationChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Asset Returns',
+                    data: [],
+                    borderColor: '#007bff',
+                    fill: false,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Time' },
+                        grid: { color: '#333' }
+                    },
+                    y: {
+                        title: { display: true, text: 'Returns' },
+                        grid: { color: '#333' }
+                    }
+                }
+            }
+        });
+
+        // Connect to WebSocket
+        const ws = new WebSocket('ws://localhost:8000/ws');
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const lastIndex = data.time.length - 1;
+
+            chart.data.labels.push(data.time[lastIndex]);
+            chart.data.datasets[0].data.push(data.returns[lastIndex]);
+
+            chart.update();
+        };
+
+        ws.onclose = function() {
+            console.log('WebSocket connection closed');
+        };
+    </script>
+</body>
+</html>
