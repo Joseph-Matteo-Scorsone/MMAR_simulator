@@ -10,7 +10,7 @@ app = Quart(__name__)
 async def ws():
     try:
         n = 10
-        H = 0.
+        H = 0.6
         m = 0.6
         np.random.seed(42)
 
